@@ -1,8 +1,11 @@
 import os
 
+import numpy as np
 import pandas as pd
 import torch
 from torch.nn.utils.rnn import pad_sequence
+
+from cc_utils import _get_clip_labels
 
 K_RUNS = 4
 
@@ -21,7 +24,7 @@ def _get_clip_seq(df, subject_list, args):
     X = []
     y = []
     for subject in subject_list:
-        for i_class in range(args.k_class):
+        for i_class in range(args["k_class"]):
 
             if i_class == 0:  # split test-retest into 4
                 seqs = df[(df['Subject'] == subject) &
@@ -51,14 +54,29 @@ def _get_clip_seq(df, subject_list, args):
     X = pad_sequence(X, batch_first=True, padding_value=0)
     y = pad_sequence(y, batch_first=True, padding_value=-100)
 
-    return X.to(args.device), X_len.to(args.device), y.to(args.device)
+    return X.to(args["device"]), X_len.to(args["device"]), y.to(args["device"])
 
 
-def _clip_class_df(args):
+def _clip_class_df_net(args, data_path=None):
+    '''
+    data for 15-way clip classification
+    return:
+    pandas df
+    '''
+
+    if not data_path:
+        data_path = args['train_data']
+
+    return pd.read_pickle(os.path.join(data_path, f"{args['area']}.pkl"))
+
+
+def _clip_class_df_roi(args, data_path=None):
     df = pd.DataFrame()
-    data_path = args.train_data
+    if not data_path:
+        data_path = args['train_data']
+
     for subject in os.listdir(data_path):
-        subject_df = pd.read_pickle(os.path.join(data_path, subject, f'{args.roi}.pkl'))
+        subject_df = pd.read_pickle(os.path.join(data_path, subject, f'{args["area"]}.pkl'))
         df = pd.concat([df, subject_df])
 
     df['Subject'] = df['Subject'].astype(int)
