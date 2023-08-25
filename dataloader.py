@@ -1,11 +1,8 @@
 import os
 
-import numpy as np
 import pandas as pd
 import torch
 from torch.nn.utils.rnn import pad_sequence
-
-from cc_utils import _get_clip_labels
 
 K_RUNS = 4
 

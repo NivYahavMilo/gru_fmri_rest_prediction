@@ -25,6 +25,7 @@ def run(train_config: dict, region: BrainRegion):
                 clip_df = _clip_class_df_roi(train_config, data_path=train_config['train_data'])
                 rest_df = _clip_class_df_roi(train_config, data_path=train_config['test_data'])
 
+            print("training:", train_config['area'])
             results = {'test_mode': train_clip_predict_rest(clip_df, rest_df, train_config)}
 
         else:
@@ -32,6 +33,7 @@ def run(train_config: dict, region: BrainRegion):
                 df = _clip_class_df_roi(train_config)
             else:
                 df = _clip_class_df_net(train_config)
+            print("training:", train_config['area'])
             results = {'test_mode': train(df, train_config)}
 
         with open(res_path, 'wb') as f:
@@ -66,15 +68,15 @@ if __name__ == '__main__':
     for net in ['DMN', 'Visual', 'DorsalAttention']:
         training_config = {
             'train_data_mode': 'clip',
-            'test_data_mode': 'rest',
+            'test_data_mode': 'clip',
             'train_data': config.NETWORK_DATA_DF.format(mode='TASK'),
-            'test_data': config.NETWORK_DATA_DF.format(mode='REST'),
+            'test_data': config.NETWORK_DATA_DF.format(mode='TASK'),
             'area': net,
             'k_class': 15,
             'mode': 'video',
-            'k_hidden': 128,
-            'k_layers': 2,
-            'bi_lstm': True,
+            'k_hidden': 150,
+            'k_layers': 1,
+            'bi_lstm': False,
             'batch_size': 16,
             'num_epochs': 50,
             'train_size': 100,
